@@ -13,6 +13,12 @@
 
 #include <iostream>
 
+#ifdef _WIN32
+typedef SOCKET _socket_;
+#else 
+typedef int _socket_;
+#endif
+
 class Socket {
 private:
 	char* ip_{ new char[500] };
@@ -24,13 +30,7 @@ private:
 
 	struct sockaddr_in addr;
 
-#ifdef _WIN32
-	SOCKET __socket__;
-
-#else 
-	int __socket__;
-
-#endif
+	_socket_ __socket__;
 public:
 	Socket(char* ip, int port, int cout_p, int type, int family, int protocol) :
 		ip_{ ip },
@@ -87,15 +87,9 @@ public:
 		return false;
 	}
 
-#ifdef _WIN32
-	SOCKET getSocket() {
+	_socket_ getSocket() {
 		return this->__socket__;
 	}
-#else
-	int getSocket() {
-		return this->__socket__;
-	}
-#endif
 
 	bool bind_() {
 		int si__addr__{ sizeof(addr) };
@@ -139,8 +133,7 @@ public:
 		return false;
 	}
 
-#ifdef _WIN32
-	SOCKET accept_() {
+	_socket_ accept_() {
 		int si___{ sizeof(addr) };
 		SOCKET __client__{ accept(this->getSocket(), (sockaddr*)&addr, &si___) };
 		if (__client__ >= 0) {
@@ -152,20 +145,6 @@ public:
 
 		return 0;
 	}
-#else 
-	int accept_() {
-		int si___{ sizeof(addr) };
-		int __client__{ accept(this->getSocket(), (sockaddr*)&addr, &si___) };
-		if (__client__ >= 0) {
-			return __client__;
-		}
-		else {
-			return 0;
-		}
-
-		return 0;
-	}
-#endif
 
 	bool messageSend(const char* buffer, int flag) {
 		int teste = sizeof(buffer);
